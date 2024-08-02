@@ -41,10 +41,10 @@ def process_excel(file_path):
         young = (stress[500] - stress[400]) / ((elongation[500] - elongation[400]) * 0.01)
 
         strain = elongation[300:1500]
-        stress = stress[300:1500]
+        stress_2 = stress[300:1500]
         strain *= 0.01
         # Perform linear regression on the data
-        slope, intercept, r_value, p_value, std_err = linregress(strain, stress)
+        slope, intercept, r_value, p_value, std_err = linregress(strain, stress_2)
 
         # Calculate Young's modulus (slope of the linear fit)
         youngs_modulus = slope
