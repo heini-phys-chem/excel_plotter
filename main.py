@@ -8,6 +8,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from excel_processor import process_excel
 from plotter import plot_data
+from subplots_plotter import plot_subplots  # Import the new function
 from custom_plotter import plot_custom_files
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
@@ -25,13 +26,16 @@ class ExcelFileAnalyzerApp:
         self.tab1 = ttk.Frame(self.notebook)
         self.tab2 = ttk.Frame(self.notebook)
         self.tab3 = ttk.Frame(self.notebook)
+        self.tab4 = ttk.Frame(self.notebook)  # New tab for subplots
         self.notebook.add(self.tab1, text="Analyze")
         self.notebook.add(self.tab2, text="Plot")
         self.notebook.add(self.tab3, text="Custom Plot")
+        self.notebook.add(self.tab4, text="Subplots")  # Add the new tab
 
         self.create_analyze_tab()
         self.create_plot_tab()
         self.create_custom_plot_tab()
+        self.create_subplots_tab()  # Create the new tab
 
         self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
 
@@ -119,6 +123,30 @@ class ExcelFileAnalyzerApp:
 
         self.custom_canvas = None
 
+    def create_subplots_tab(self):  # New method to create the subplots tab
+        self.subplots_frame = ttk.Frame(self.tab4, padding="10")
+        self.subplots_frame.pack(fill=tk.BOTH, expand=True)
+
+        self.subplots_button = ttk.Button(self.subplots_frame, text="Plot Subplots", command=self.plot_subplots, state=tk.DISABLED)
+        self.subplots_button.pack(pady=20)
+
+        self.save_subplots_button = ttk.Button(self.subplots_frame, text="Save Subplots", command=self.save_subplots, state=tk.DISABLED)
+        self.save_subplots_button.pack(pady=20)
+
+        self.subplots_axis_label_fontsize_slider = Scale(self.subplots_frame, from_=8, to_=32, orient=tk.HORIZONTAL, label="Axis Label Font Size")
+        self.subplots_axis_label_fontsize_slider.set(12)
+        self.subplots_axis_label_fontsize_slider.pack(pady=10)
+
+        self.subplots_tick_label_fontsize_slider = Scale(self.subplots_frame, from_=8, to_=32, orient=tk.HORIZONTAL, label="Tick Label Font Size")
+        self.subplots_tick_label_fontsize_slider.set(10)
+        self.subplots_tick_label_fontsize_slider.pack(pady=10)
+
+        self.subplots_text_fontsize_slider = Scale(self.subplots_frame, from_=8, to_=32, orient=tk.HORIZONTAL, label="Text Font Size")
+        self.subplots_text_fontsize_slider.set(10)
+        self.subplots_text_fontsize_slider.pack(pady=10)
+
+        self.subplots_canvas = None
+
     def process_files(self):
         file_paths = filedialog.askopenfilenames(
             title="Select Excel Files",
@@ -152,6 +180,7 @@ class ExcelFileAnalyzerApp:
             self.save_button.config(state=tk.NORMAL)
             self.plot_button.config(state=tk.NORMAL)
             self.update_plot_button.config(state=tk.NORMAL)
+            self.subplots_button.config(state=tk.NORMAL)  # Enable the subplots button
             self.custom_update_plot_button.config(state=tk.NORMAL)
 
     def save_results(self):
@@ -240,7 +269,32 @@ class ExcelFileAnalyzerApp:
         self.custom_canvas.draw()
         self.custom_canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True)
 
-    def save_custom_plot(self):
+    def plot_subplots(self):  # New method to plot subplots
+        if self.df_results is None:
+            messagebox.showerror("Error", "No data available for plotting.")
+            return
+
+        if self.subplots_canvas is not None:
+            self.subplots_canvas.get_tk_widget().pack_forget()
+
+        axis_label_fontsize = self.subplots_axis_label_fontsize_slider.get()
+        tick_label_fontsize = self.subplots_tick_label_fontsize_slider.get()
+        text_fontsize = self.subplots_text_fontsize_slider.get()
+
+        self.subplots_canvas = plot_subplots(self.df_results, self.subplots_frame, axis_label_fontsize, tick_label_fontsize, text_fontsize)
+        self.save_subplots_button.config(state=tk.NORMAL)
+
+    def save_subplots(self):
+        save_path = filedialog.asksaveasfilename(
+            title="Save Subplots As",
+            defaultextension=".png",
+            filetypes=[("PNG files", "*.png"), ("PDF files", "*.pdf"), ("All files", "*.*")]
+        )
+        if save_path and self.subplots_canvas:
+            self.subplots_canvas.figure.savefig(save_path, dpi=300)
+            messagebox.showinfo("Success", f"Subplots saved to {save_path}")
+
+    def save_custom_plot(self):  # Added missing method
         save_path = filedialog.asksaveasfilename(
             title="Save Custom Plot As",
             defaultextension=".png",
@@ -256,6 +310,9 @@ class ExcelFileAnalyzerApp:
             plt.close('all')
         if self.custom_canvas:
             self.custom_canvas.get_tk_widget().pack_forget()
+            plt.close('all')
+        if self.subplots_canvas:
+            self.subplots_canvas.get_tk_widget().pack_forget()
             plt.close('all')
         self.root.destroy()
         sys.exit()
