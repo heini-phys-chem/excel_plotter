@@ -23,7 +23,7 @@ def make_plot(file_path, ax, color, linestyle, text_fontsize):
     youngs = np.array([])
 
     for i, sheet_name in enumerate(sheet_names):
-        if i == 0 or i == 1:
+        if sheet_name == "Parameters" or sheet_name == "Results" or sheet_name == "Statistics":
             continue
         data = pd.read_excel(workbook, sheet_name=sheet_name, header=1, skiprows=[0, 2])
         data.columns = ['Strain', 'Standard force']
