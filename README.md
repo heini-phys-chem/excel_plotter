@@ -6,7 +6,7 @@ To install:
 ```
 git clone https://github.com/heini-phys-chem/excel_plotter.git
 ```
-Then installed the required libraries:
+Then install the required libraries:
 ```
 pip install -r requirements.txt
 ```
