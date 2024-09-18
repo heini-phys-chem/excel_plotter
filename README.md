@@ -17,3 +17,8 @@ Start the app using:
 python3 main.py
 ```
 This will open a window with the corresponding options of reading and plotting data
+
+## Update to newest version
+```
+git pull
+```
