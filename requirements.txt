@@ -1,4 +1,8 @@
+tk
 pandas
 matplotlib
-adjustText
 scipy
+adjustText
+openpyxl
+xlrdl
+xlsxwriterl
