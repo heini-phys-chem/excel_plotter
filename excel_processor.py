@@ -19,7 +19,6 @@ def process_excel(file_path):
     toughness = np.array([])
     tensile = np.array([])
     elong = np.array([])
-    youngs = np.array([])
 
     for i, sheet_name in enumerate(sheet_names):
         if sheet_name == "Parameters" or sheet_name == "Results" or sheet_name == "Statistics":
@@ -37,27 +36,18 @@ def process_excel(file_path):
         # Calculate the area under the curve using Simpson's rule for the stress-strain curve
         area = simpson(x=elongation, y=stress)
 
-        # Calculate Young's modulus
-#        young = (stress[500] - stress[400]) / ((elongation[500] - elongation[400]) * 0.01)
-#
-#        strain = elongation[300:1500]
-#        stress_2 = stress[300:1500]
-#        strain *= 0.01
-#        # Perform linear regression on the data
-#        slope, intercept, r_value, p_value, std_err = linregress(strain, stress_2)
-#
-#        # Calculate Young's modulus (slope of the linear fit)
-#        youngs_modulus = slope
-#
-#        youngs = np.append(youngs, young)
         tensile = np.append(tensile, np.max(stress.values))
         elong = np.append(elong, elongation.values[-1])
         toughness = np.append(toughness, area)
 
     statistics_df = pd.read_excel(workbook, sheet_name='Statistics')
     # Extract the second value (Young's modulus) and the third value (standard deviation) from the 'Et' column
-    youngs_modulus = statistics_df['Et'].iloc[1]  # Second row (index 1)
-    std_dev = statistics_df['Et'].iloc[2]         # Third row (index 2)
+    try:
+        youngs_modulus = statistics_df['Et'].iloc[1]  # Second row (index 1)
+        std_dev = statistics_df['Et'].iloc[2]         # Third row (index 2)
+    except:
+        youngs_modulus = statistics_df['EH'].iloc[1]  # Second row (index 1)
+        std_dev = statistics_df['EH'].iloc[2]         # Third row (index 2)
 
     results = {
         "Mean Tensile Strength": np.mean(tensile),
@@ -70,4 +60,3 @@ def process_excel(file_path):
         "Std Elongation": np.std(elong),
     }
     return results
-
